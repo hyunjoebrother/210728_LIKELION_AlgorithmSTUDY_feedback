@@ -288,10 +288,10 @@ string solution(vector<string> participant, vector<string> completion) {
 // set : key만 보관, map ; value까지 같이 보관 (메모리 크게 차지함)
 // 정렬이 필요 없으면 unorderd_map 활용하자
 
-// 반복자 Iterator
-: 배열의 요소를 가르키는 pointer(메모리의 주소값을 저장하는 변수)
-vector, deque, set, map, list 같은 container에 저장되어 있는 원소를 참조(접근)
-stack, queue는 없음
+// // 반복자 Iterator
+// : 배열의 요소를 가르키는 pointer(메모리의 주소값을 저장하는 변수)
+// vector, deque, set, map, list 같은 container에 저장되어 있는 원소를 참조(접근)
+// stack, queue는 없음
 
 #include <string>
 #include <vector>
@@ -305,11 +305,161 @@ string solution(vector<string> participant, vector<string> completion) {
 
     // 선언
     unordered_map<string, int> mapForCompletion;
+
     // find()메소드가 iterator 반환하기에 반복자 mapIter 선언
     unordered_map<string, int>::iterator mapIter;
 
+    for (int i=0; i<completion.size(); i++)
+    {
+        mapForCompletion[completion[i]] += 1;
+    }
 
+    for (int i=0; i<participant.size(); i++)
+    {
+        mapIter = mapForCompletion.find(participant[i]);
 
+        // find 메소드가 못 찾을 때 해당 map의 end() 반환
+        if (mapIter == mapForCompletion.end())
+        {
+            return participant[i];
+        }
+        else
+        {
+            mapIter -> second -= 1;
+            // map의 value 중복횟수 -> 1씩 감소시키다가 0이하면 return 
+            if (mapIter -> second < 0)
+            {
+                return participant[i];
+            }
+        }
+    }
 
     return answer;
+}
+
+
+// feedback - 3 (SYS)
+// key-value 갖는 map 사용
+// key : 선수 이름, value : 답을 알기 위해 설정한 정수 (-1, 0, 1)
+// 완주자 vector 돌면서 각각의 이름을 key로 했을 때 value에 1을 더함
+// (map의 value가 int형이면 기본default 0을 가짐)
+// 그리고 참가자 vector을 돌며서 다시 value에서 1을 빼줌
+// value가 -1 이 되는 참가자가 정답!!!
+
+
+#include <string>
+#include <vector>
+#include <map>
+
+#include <iostream>
+using namespace std;
+
+string solution(vector<string> participant, vector<string> completion) {
+    
+    // key : 선수 이름, value : 완주하지 못한 선수를 구별하기 위한 정수
+    map<string, int> m;
+
+    for (string c : completion)
+    {
+        m[c]++; // 완주자 이름을 key로 했을 때 value 1+
+    }
+    
+    for (string p : participant)
+    {
+        m[p]--; // 참가자 이름을 key로 했을 때 value 1-
+        if (m[p] == -1)
+        {
+            // 완주자 vector에 없고 참가자에만 있을 때 value : -1
+            return p;
+        }   
+    }
+}
+
+// 정렬 풀이
+#include <algorithm>
+
+string solution(vector<string> participant, vector<string> completion) {
+    sort(participant.begin(), participant.end());
+    sort(completion.begin(), completion.end());
+
+    int num = completion.size();
+    for (int i{0}; i<num; i++)
+    {
+        if (participant[i] != completion[i])
+        {
+            return participant[i];
+        }
+    }
+
+}
+
+
+// feedback - 3 (KYJ)
+// map STL 사용
+// key값 중복 피하기 위해 map에 처음 key값으로 들어오는 경우 & 기존 경우 나눠서 insert
+// 처음은 1, 아닌 경우는 중복의 수 만큼
+// completion으로 완주하는 사람들을 제외하기 위해 해당 key 찾을 때마다 value에 1 감소
+// 그러므로 map에 있는 value값이 0이 아닌 경우 : 완주 못한 경우
+
+#include <string>
+#include <vector>
+#include <map>
+
+#include <iostream>
+using namespace std;
+
+string solution(vector<string> participant, vector<string> completion) {
+    string answer = "";
+
+    map<string, int> m;
+    
+    for (int i=0; i<participant.size(); i++)
+    {
+        if (m.find(participant[i]) == m.end())
+            m.insert({participant[i], 1});
+        else
+            m.find(participant[i])->second++;
+    }
+
+    for (int i=0; i<completion.size(); i++)
+    {
+        if (m.find(completion[i]) != m.end())
+            m.find(completion[i])->second--;
+    }
+
+    for (auto iter = m.begin(); iter!= m.end(); iter++)
+    // begin 함수에 input에 따라 반환하는 iterator의 객체 자료형이 다르므로 auto 선언
+    {
+        if (iter->second != 0)
+            answer = iter->first;
+    }
+
+    return answer;
+}
+
+
+// feedback - 5 (HSJ, SJS)
+// 각각 정렬하면 순서가 같아져서 순서대로 비교
+// for문으로 비교하다가 다르면 해당 participant return
+
+#include <string>
+#include <vector>
+#include <algorithm>
+
+#include <iostream>
+using namespace std;
+
+string solution(vector<string> participant, vector<string> completion) {
+    // 각각 정렬
+    sort(participant.begin(), participant.end());
+    sort(completion.begin(), completion.end());
+
+    for (int i=0; i<completion.size(); i++)
+    {
+        if (participant[i] != completion[i])
+            return participant[i];
+    }
+
+    // 완주자 모두 다 돌았는데 return 없으면 참가자 제일 마지막 값 return
+    return participant[participant.size() - 1];
 }
