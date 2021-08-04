@@ -25,7 +25,7 @@ int solution(vector<int> nums)
 }
 
 
-// feedback - 2 (LJH)
+// feedback - 2 (LJH, SYS)
 // 객체 종류 상관없이 최대한 많이 고르는 거라서 중복은 신경 안 써도 됨
 // set을 만들고 insert로 중복되는 것들을 하나의 객체로 통합
 // 고르는 갯수보다 set 크기가 크면 고르는 갯수가 최댓값
@@ -65,7 +65,7 @@ int solution(vector<int> nums)
         answer = poketmon.size();
     else
         answer = pick;
-        
+
 
     return answer;
 }
