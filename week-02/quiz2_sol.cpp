@@ -85,6 +85,7 @@ vector<int> solution(vector<int> progresses, vector<int> speeds) {
             pre_day = cur_day;
     }
 
+
     for (auto key : Map)
         answer.push_back(key.second);
 
